@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db-statefulset
+spec:
+  selector:
+    matchLabels:
+      app: db
+  serviceName: db-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: db
+        image: mysql:8.0.33
+        args:
+        - "--default-authentication-plugin=mysql_native_password"
+        envFrom:
+        - configMapRef:
+            name: db-configmap
+        - secretRef:
+            name: db-secret
+        volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: db-storage
+        ports:
+        - containerPort: 3306
+  volumeClaimTemplates:
+  - metadata:
+      name: db-storage
+    spec:
+      storageClassName: "standard"
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: "10Mi"

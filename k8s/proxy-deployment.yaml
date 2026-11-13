@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxy-deployment
+spec:
+  selector:
+    matchLabels:
+      app: proxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: proxy
+    spec:
+      containers:
+      - name: proxy
+        image: nginx:stable-alpine3.24-slim
+        volumeMounts:
+          - mountPath: /etc/nginx/conf.d/
+            name: proxy-config
+        ports:
+        - containerPort: 80
+          protocol: "TCP"
+      volumes:
+      - name: proxy-config
+        configMap:
+          name: proxy-configmap
+
